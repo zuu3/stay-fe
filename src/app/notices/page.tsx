@@ -6,8 +6,16 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { theme } from '@/styles/theme';
 import { getPosts, isAdmin, type Post } from '@/lib/posts';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const tags = ['전체', '공지', '패치', '이벤트'];
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 100px 0;
+  width: 100%;
+`;
 
 const Page = styled.div`
   max-width: 1100px;
@@ -159,6 +167,7 @@ const tagIcon: Record<string, string> = {
 export default function NoticesPage() {
   const [filter, setFilter] = useState('전체');
   const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
   const admin = session?.user?.isAdmin;
 
@@ -166,6 +175,7 @@ export default function NoticesPage() {
     const fetchPosts = async () => {
       const data = await getPosts();
       setPosts(data);
+      setLoading(false);
     };
     fetchPosts();
   }, []);
@@ -186,22 +196,28 @@ export default function NoticesPage() {
           </FilterBtn>
         ))}
       </Filters>
-      <Grid>
-        {filtered.map(p => (
-          <Card key={p.id} href={`/notices/${p.id}`}>
-            <Thumb>{tagIcon[p.tag] ?? '📄'}</Thumb>
-            <CardBody>
-              <CardMeta>
-                <Tag>{p.tag}</Tag>
-                <Divider>|</Divider>
-                <DateText>{p.date}</DateText>
-              </CardMeta>
-              <CardTitle>{p.title}</CardTitle>
-              <CardDesc>{p.summary}</CardDesc>
-            </CardBody>
-          </Card>
-        ))}
-      </Grid>
+      {loading ? (
+        <LoadingContainer>
+          <LoadingSpinner />
+        </LoadingContainer>
+      ) : (
+        <Grid>
+          {filtered.map(p => (
+            <Card key={p.id} href={`/notices/${p.id}`}>
+              <Thumb>{tagIcon[p.tag] ?? '📄'}</Thumb>
+              <CardBody>
+                <CardMeta>
+                  <Tag>{p.tag}</Tag>
+                  <Divider>|</Divider>
+                  <DateText>{p.date}</DateText>
+                </CardMeta>
+                <CardTitle>{p.title}</CardTitle>
+                <CardDesc>{p.summary}</CardDesc>
+              </CardBody>
+            </Card>
+          ))}
+        </Grid>
+      )}
     </Page>
   );
 }
