@@ -81,11 +81,18 @@ const Counter = styled.p`
 
 const Title = styled.h1`
   font-family: ${theme.font.display};
-  font-size: clamp(40px, 7vw, 80px);
+  font-size: clamp(32px, 8vw, 80px); /* 모바일에서 조금 더 크게 조절 */
   font-weight: 800;
   line-height: 1.15;
   letter-spacing: -1px;
-  margin-bottom: 48px;
+  margin-bottom: 40px;
+
+  @media (max-width: 768px) {
+    font-size: clamp(28px, 10vw, 48px);
+    margin-bottom: 24px;
+    line-height: 1.25;
+    word-break: keep-all;
+  }
 `;
 
 /* hexagonal CTA button */

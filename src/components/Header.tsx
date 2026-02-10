@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -20,6 +21,11 @@ const Wrap = styled.header`
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+  @media (max-width: 768px) {
+    padding: 0 16px;
+    height: 64px;
+  }
 `;
 
 const Logo = styled(Link)`
@@ -41,6 +47,10 @@ const Nav = styled.nav`
   display: flex;
   align-items: center;
   gap: 36px;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const NavLink = styled(Link) <{ $active: boolean }>`
@@ -72,6 +82,10 @@ const UserChip = styled.div`
   font-size: 14px;
   font-weight: 500;
   color: ${theme.colors.textSub};
+
+  @media (max-width: 768px) {
+    span { display: none; } /* 모바일에서는 닉네임 숨기고 아바타만 노출 */
+  }
 `;
 
 const Avatar = styled.img`
@@ -104,6 +118,68 @@ const GameStartBtn = styled.a`
   clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
   transition: opacity 0.2s;
   &:hover { opacity: 0.85; }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const Hamburger = styled.button<{ $open: boolean }>`
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 20px;
+  height: 14px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 110;
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+
+  span {
+    width: 100%;
+    height: 2px;
+    background: ${theme.colors.text};
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: left center;
+
+    &:nth-of-type(1) { transform: ${({ $open }) => $open ? 'rotate(45deg) translateY(-1px)' : 'rotate(0)'}; }
+    &:nth-of-type(2) { opacity: ${({ $open }) => $open ? 0 : 1}; }
+    &:nth-of-type(3) { transform: ${({ $open }) => $open ? 'rotate(-45deg) translateY(1px)' : 'rotate(0)'}; }
+  }
+`;
+
+const MobileMenu = styled.div<{ $open: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: ${theme.colors.bg};
+  z-index: 105; /* Wrap 보다는 위, Hamburger 보다는 아래 */
+  display: flex;
+  flex-direction: column;
+  padding: 100px 24px;
+  gap: 24px;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: ${({ $open }) => $open ? 'translateY(0)' : 'translateY(-100%)'};
+  pointer-events: ${({ $open }) => $open ? 'auto' : 'none'};
+`;
+
+const MobileNavLink = styled(Link) <{ $active: boolean }>`
+  font-size: 24px;
+  font-weight: 700;
+  color: ${({ $active }) => $active ? theme.colors.accent : theme.colors.text};
+`;
+
+const MobileExternalLink = styled.a`
+  font-size: 24px;
+  font-weight: 700;
+  color: ${theme.colors.text};
 `;
 
 const links = [
@@ -114,38 +190,73 @@ const links = [
 export default function Header() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [open]);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   return (
-    <Wrap>
-      <Logo href="/">
-        <Image src="/assets/logo.png" alt="STAY" width={36} height={36} />
-        <LogoText>STAY</LogoText>
-      </Logo>
+    <>
+      <Wrap>
+        <Logo href="/">
+          <Image src="/assets/logo.png" alt="STAY" width={36} height={36} />
+          <LogoText>STAY</LogoText>
+        </Logo>
 
-      <Nav>
+        <Nav>
+          {links.map(l => (
+            <NavLink key={l.href} href={l.href} $active={pathname.startsWith(l.href)}>
+              {l.label}
+            </NavLink>
+          ))}
+          <ExternalNavLink href="https://discord.gg/BsFcbVA84Z" target="_blank" rel="noopener noreferrer">
+            디스코드
+          </ExternalNavLink>
+        </Nav>
+
+        <Right>
+          {session?.user ? (
+            <UserChip>
+              {session.user.image && <Avatar src={session.user.image} alt="" />}
+              <span>{session.user.name}</span>
+            </UserChip>
+          ) : (
+            <LoginBtn onClick={() => signIn('discord')}>로그인</LoginBtn>
+          )}
+          <GameStartBtn href="https://cfx.re/" target="_blank" rel="noopener noreferrer">
+            GAME START
+          </GameStartBtn>
+          <Hamburger $open={open} onClick={() => setOpen(!open)}>
+            <span /><span /><span />
+          </Hamburger>
+        </Right>
+      </Wrap>
+
+      <MobileMenu $open={open}>
         {links.map(l => (
-          <NavLink key={l.href} href={l.href} $active={pathname.startsWith(l.href)}>
+          <MobileNavLink key={l.href} href={l.href} $active={pathname.startsWith(l.href)}>
             {l.label}
-          </NavLink>
+          </MobileNavLink>
         ))}
-        <ExternalNavLink href="https://discord.gg/BsFcbVA84Z" target="_blank" rel="noopener noreferrer">
+        <MobileExternalLink href="https://discord.gg/BsFcbVA84Z" target="_blank" rel="noopener noreferrer">
           디스코드
-        </ExternalNavLink>
-      </Nav>
-
-      <Right>
-        {session?.user ? (
-          <UserChip>
-            {session.user.image && <Avatar src={session.user.image} alt="" />}
-            <span>{session.user.name}</span>
-          </UserChip>
-        ) : (
-          <LoginBtn onClick={() => signIn('discord')}>로그인</LoginBtn>
+        </MobileExternalLink>
+        {!session && (
+          <MobileExternalLink as="button" onClick={() => signIn('discord')} style={{ textAlign: 'left', background: 'none', border: 'none', padding: 0 }}>
+            로그인
+          </MobileExternalLink>
         )}
-        <GameStartBtn href="https://cfx.re/" target="_blank" rel="noopener noreferrer">
-          GAME START
-        </GameStartBtn>
-      </Right>
-    </Wrap>
+      </MobileMenu>
+    </>
   );
 }
