@@ -68,6 +68,8 @@ const Content = styled.div`
 
 const LogoWrap = styled.div`
   margin-bottom: 36px;
+  display: flex;
+  justify-content: center;
 `;
 
 const Counter = styled.p`

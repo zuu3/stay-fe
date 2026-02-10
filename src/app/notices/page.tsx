@@ -151,53 +151,57 @@ const CardDesc = styled.p`
 `;
 
 const tagIcon: Record<string, string> = {
-    '공지': '📢',
-    '패치': '🔧',
-    '이벤트': '🎉',
+  '공지': '📢',
+  '패치': '🔧',
+  '이벤트': '🎉',
 };
 
 export default function NoticesPage() {
-    const [filter, setFilter] = useState('전체');
-    const [posts, setPosts] = useState<Post[]>([]);
-    const { data: session } = useSession();
-    const admin = isAdmin(session?.user?.id);
+  const [filter, setFilter] = useState('전체');
+  const [posts, setPosts] = useState<Post[]>([]);
+  const { data: session } = useSession();
+  const admin = session?.user?.isAdmin;
 
-    useEffect(() => {
-        setPosts(getPosts());
-    }, []);
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const data = await getPosts();
+      setPosts(data);
+    };
+    fetchPosts();
+  }, []);
 
-    const filtered = filter === '전체' ? posts : posts.filter(p => p.tag === filter);
+  const filtered = filter === '전체' ? posts : posts.filter(p => p.tag === filter);
 
-    return (
-        <Page>
-            <TopRow>
-                <PageTitle>새로운 소식</PageTitle>
-                {admin && <WriteBtn href="/notices/write">글 작성</WriteBtn>}
-            </TopRow>
-            <PageSub>서버의 최신 공지사항과 업데이트를 확인하세요</PageSub>
-            <Filters>
-                {tags.map(t => (
-                    <FilterBtn key={t} $active={filter === t} onClick={() => setFilter(t)}>
-                        {t}
-                    </FilterBtn>
-                ))}
-            </Filters>
-            <Grid>
-                {filtered.map(p => (
-                    <Card key={p.id} href={`/notices/${p.id}`}>
-                        <Thumb>{tagIcon[p.tag] ?? '📄'}</Thumb>
-                        <CardBody>
-                            <CardMeta>
-                                <Tag>{p.tag}</Tag>
-                                <Divider>|</Divider>
-                                <DateText>{p.date}</DateText>
-                            </CardMeta>
-                            <CardTitle>{p.title}</CardTitle>
-                            <CardDesc>{p.summary}</CardDesc>
-                        </CardBody>
-                    </Card>
-                ))}
-            </Grid>
-        </Page>
-    );
+  return (
+    <Page>
+      <TopRow>
+        <PageTitle>새로운 소식</PageTitle>
+        {admin && <WriteBtn href="/notices/write">글 작성</WriteBtn>}
+      </TopRow>
+      <PageSub>서버의 최신 공지사항과 업데이트를 확인하세요</PageSub>
+      <Filters>
+        {tags.map(t => (
+          <FilterBtn key={t} $active={filter === t} onClick={() => setFilter(t)}>
+            {t}
+          </FilterBtn>
+        ))}
+      </Filters>
+      <Grid>
+        {filtered.map(p => (
+          <Card key={p.id} href={`/notices/${p.id}`}>
+            <Thumb>{tagIcon[p.tag] ?? '📄'}</Thumb>
+            <CardBody>
+              <CardMeta>
+                <Tag>{p.tag}</Tag>
+                <Divider>|</Divider>
+                <DateText>{p.date}</DateText>
+              </CardMeta>
+              <CardTitle>{p.title}</CardTitle>
+              <CardDesc>{p.summary}</CardDesc>
+            </CardBody>
+          </Card>
+        ))}
+      </Grid>
+    </Page>
+  );
 }

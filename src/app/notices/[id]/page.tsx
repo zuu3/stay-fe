@@ -115,56 +115,59 @@ const NotFound = styled.div`
 `;
 
 export default function NoticeDetailPage() {
-    const params = useParams();
-    const router = useRouter();
-    const { data: session } = useSession();
-    const [post, setPost] = useState<Post | null>(null);
-    const [loading, setLoading] = useState(true);
-    const admin = isAdmin(session?.user?.id);
+  const params = useParams();
+  const router = useRouter();
+  const { data: session } = useSession();
+  const [post, setPost] = useState<Post | null>(null);
+  const [loading, setLoading] = useState(true);
+  const admin = session?.user?.isAdmin;
 
-    useEffect(() => {
-        const id = params.id as string;
-        const found = getPost(id);
-        setPost(found ?? null);
-        setLoading(false);
-    }, [params.id]);
-
-    if (loading) return null;
-
-    if (!post) {
-        return (
-            <NotFound>
-                <p>존재하지 않는 게시글입니다.</p>
-                <BackLink href="/notices">목록으로 돌아가기</BackLink>
-            </NotFound>
-        );
-    }
-
-    const handleDelete = () => {
-        if (confirm('정말 삭제하시겠습니까?')) {
-            deletePost(post.id);
-            router.push('/notices');
-        }
+  useEffect(() => {
+    const fetchPost = async () => {
+      const id = params.id as string;
+      const found = await getPost(id);
+      setPost(found ?? null);
+      setLoading(false);
     };
+    fetchPost();
+  }, [params.id]);
 
+  if (loading) return null;
+
+  if (!post) {
     return (
-        <Page>
-            <BackLink href="/notices">목록으로</BackLink>
-            <Meta>
-                <TagBadge>{post.tag}</TagBadge>
-                <DateText>{post.date}</DateText>
-            </Meta>
-            <Title>{post.title}</Title>
-            <ContentWrap>
-                <Editor initialContent={post.content} editable={false} />
-            </ContentWrap>
-
-            {admin && (
-                <Actions>
-                    <EditBtn href={`/notices/write?id=${post.id}`}>수정</EditBtn>
-                    <DeleteBtn onClick={handleDelete}>삭제</DeleteBtn>
-                </Actions>
-            )}
-        </Page>
+      <NotFound>
+        <p>존재하지 않는 게시글입니다.</p>
+        <BackLink href="/notices">목록으로 돌아가기</BackLink>
+      </NotFound>
     );
+  }
+
+  const handleDelete = async () => {
+    if (confirm('정말 삭제하시겠습니까?')) {
+      await deletePost(post.id);
+      router.push('/notices');
+    }
+  };
+
+  return (
+    <Page>
+      <BackLink href="/notices">목록으로</BackLink>
+      <Meta>
+        <TagBadge>{post.tag}</TagBadge>
+        <DateText>{post.date}</DateText>
+      </Meta>
+      <Title>{post.title}</Title>
+      <ContentWrap>
+        <Editor initialContent={post.content} editable={false} />
+      </ContentWrap>
+
+      {admin && (
+        <Actions>
+          <EditBtn href={`/notices/write?id=${post.id}`}>수정</EditBtn>
+          <DeleteBtn onClick={handleDelete}>삭제</DeleteBtn>
+        </Actions>
+      )}
+    </Page>
+  );
 }

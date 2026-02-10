@@ -107,45 +107,45 @@ const GameStartBtn = styled.a`
 `;
 
 const links = [
-    { href: '/notices', label: '새로운 소식' },
-    { href: '/laws', label: '게임 가이드' },
+  { href: '/notices', label: '새로운 소식' },
+  { href: '/laws', label: '게임 가이드' },
 ];
 
 export default function Header() {
-    const pathname = usePathname();
-    const { data: session } = useSession();
+  const pathname = usePathname();
+  const { data: session } = useSession();
 
-    return (
-        <Wrap>
-            <Logo href="/">
-                <Image src="/assets/logo.png" alt="STAY" width={36} height={36} />
-                <LogoText>STAY</LogoText>
-            </Logo>
+  return (
+    <Wrap>
+      <Logo href="/">
+        <Image src="/assets/logo.png" alt="STAY" width={36} height={36} />
+        <LogoText>STAY</LogoText>
+      </Logo>
 
-            <Nav>
-                {links.map(l => (
-                    <NavLink key={l.href} href={l.href} $active={pathname.startsWith(l.href)}>
-                        {l.label}
-                    </NavLink>
-                ))}
-                <ExternalNavLink href="https://discord.gg/" target="_blank" rel="noopener noreferrer">
-                    디스코드
-                </ExternalNavLink>
-            </Nav>
+      <Nav>
+        {links.map(l => (
+          <NavLink key={l.href} href={l.href} $active={pathname.startsWith(l.href)}>
+            {l.label}
+          </NavLink>
+        ))}
+        <ExternalNavLink href="https://discord.gg/BsFcbVA84Z" target="_blank" rel="noopener noreferrer">
+          디스코드
+        </ExternalNavLink>
+      </Nav>
 
-            <Right>
-                {session?.user ? (
-                    <UserChip>
-                        {session.user.image && <Avatar src={session.user.image} alt="" />}
-                        <span>{session.user.name}</span>
-                    </UserChip>
-                ) : (
-                    <LoginBtn onClick={() => signIn('discord')}>로그인</LoginBtn>
-                )}
-                <GameStartBtn href="https://cfx.re/" target="_blank" rel="noopener noreferrer">
-                    GAME START
-                </GameStartBtn>
-            </Right>
-        </Wrap>
-    );
+      <Right>
+        {session?.user ? (
+          <UserChip>
+            {session.user.image && <Avatar src={session.user.image} alt="" />}
+            <span>{session.user.name}</span>
+          </UserChip>
+        ) : (
+          <LoginBtn onClick={() => signIn('discord')}>로그인</LoginBtn>
+        )}
+        <GameStartBtn href="https://cfx.re/" target="_blank" rel="noopener noreferrer">
+          GAME START
+        </GameStartBtn>
+      </Right>
+    </Wrap>
+  );
 }

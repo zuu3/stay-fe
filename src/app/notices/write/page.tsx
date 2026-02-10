@@ -130,110 +130,113 @@ const Denied = styled.div`
 const tagOptions: Post["tag"][] = ["공지", "패치", "이벤트"];
 
 function WritePageInner() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const { data: session, status } = useSession();
-    const editId = searchParams.get('id');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
+  const editId = searchParams.get('id');
 
-    const [title, setTitle] = useState('');
-    const [summary, setSummary] = useState('');
-    const [tag, setTag] = useState<Post["tag"]>('공지');
-    const [saving, setSaving] = useState(false);
-    const contentRef = useRef<Block[]>([]);
-    const [initialContent, setInitialContent] = useState<Block[] | undefined>(undefined);
-    const [ready, setReady] = useState(false);
+  const [title, setTitle] = useState('');
+  const [summary, setSummary] = useState('');
+  const [tag, setTag] = useState<Post["tag"]>('공지');
+  const [saving, setSaving] = useState(false);
+  const contentRef = useRef<Block[]>([]);
+  const [initialContent, setInitialContent] = useState<Block[] | undefined>(undefined);
+  const [ready, setReady] = useState(false);
 
-    useEffect(() => {
-        if (editId) {
-            const existing = getPost(editId);
-            if (existing) {
-                setTitle(existing.title);
-                setSummary(existing.summary);
-                setTag(existing.tag);
-                setInitialContent(existing.content);
-                contentRef.current = existing.content;
-            }
+  useEffect(() => {
+    const init = async () => {
+      if (editId) {
+        const existing = await getPost(editId);
+        if (existing) {
+          setTitle(existing.title);
+          setSummary(existing.summary);
+          setTag(existing.tag);
+          setInitialContent(existing.content);
+          contentRef.current = existing.content;
         }
-        setReady(true);
-    }, [editId]);
-
-    if (status === 'loading') return null;
-    if (!isAdmin(session?.user?.id)) {
-        return (
-            <Denied>
-                <p>관리자만 접근할 수 있습니다.</p>
-                <BackLink href="/notices">목록으로</BackLink>
-            </Denied>
-        );
-    }
-
-    const handleSave = () => {
-        if (!title.trim()) return;
-        setSaving(true);
-
-        if (editId) {
-            updatePost(editId, {
-                title: title.trim(),
-                summary: summary.trim(),
-                tag,
-                content: contentRef.current,
-            });
-            router.push(`/notices/${editId}`);
-        } else {
-            const newPost = createPost({
-                title: title.trim(),
-                summary: summary.trim(),
-                tag,
-                content: contentRef.current,
-            });
-            router.push(`/notices/${newPost.id}`);
-        }
+      }
+      setReady(true);
     };
+    init();
+  }, [editId]);
 
+  if (status === 'loading') return null;
+  if (!session?.user?.isAdmin) {
     return (
-        <Page>
-            <BackLink href="/notices">목록으로</BackLink>
-            <Header>
-                <TagRow>
-                    {tagOptions.map(t => (
-                        <TagOption key={t} $active={tag === t} onClick={() => setTag(t)}>{t}</TagOption>
-                    ))}
-                </TagRow>
-                <TitleInput
-                    placeholder="제목을 입력하세요"
-                    value={title}
-                    onChange={e => setTitle(e.target.value)}
-                    autoFocus
-                />
-                <SummaryInput
-                    placeholder="요약 (목록에 표시됩니다)"
-                    value={summary}
-                    onChange={e => setSummary(e.target.value)}
-                />
-            </Header>
-            <EditorWrap>
-                {ready && (
-                    <Editor
-                        initialContent={initialContent}
-                        onChange={blocks => { contentRef.current = blocks; }}
-                        editable={true}
-                    />
-                )}
-            </EditorWrap>
-            <BottomBar>
-                <CancelBtn href="/notices">취소</CancelBtn>
-                <SaveBtn onClick={handleSave} disabled={saving || !title.trim()}>
-                    {saving ? '저장 중...' : editId ? '수정 완료' : '작성 완료'}
-                </SaveBtn>
-            </BottomBar>
-        </Page>
+      <Denied>
+        <p>관리자만 접근할 수 있습니다.</p>
+        <BackLink href="/notices">목록으로</BackLink>
+      </Denied>
     );
+  }
+
+  const handleSave = async () => {
+    if (!title.trim()) return;
+    setSaving(true);
+
+    if (editId) {
+      await updatePost(editId, {
+        title: title.trim(),
+        summary: summary.trim(),
+        tag,
+        content: contentRef.current,
+      });
+      router.push(`/notices/${editId}`);
+    } else {
+      const newPost = await createPost({
+        title: title.trim(),
+        summary: summary.trim(),
+        tag,
+        content: contentRef.current,
+      });
+      router.push(`/notices/${newPost.id}`);
+    }
+  };
+
+  return (
+    <Page>
+      <BackLink href="/notices">목록으로</BackLink>
+      <Header>
+        <TagRow>
+          {tagOptions.map(t => (
+            <TagOption key={t} $active={tag === t} onClick={() => setTag(t)}>{t}</TagOption>
+          ))}
+        </TagRow>
+        <TitleInput
+          placeholder="제목을 입력하세요"
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          autoFocus
+        />
+        <SummaryInput
+          placeholder="요약 (목록에 표시됩니다)"
+          value={summary}
+          onChange={e => setSummary(e.target.value)}
+        />
+      </Header>
+      <EditorWrap>
+        {ready && (
+          <Editor
+            initialContent={initialContent}
+            onChange={blocks => { contentRef.current = blocks; }}
+            editable={true}
+          />
+        )}
+      </EditorWrap>
+      <BottomBar>
+        <CancelBtn href="/notices">취소</CancelBtn>
+        <SaveBtn onClick={handleSave} disabled={saving || !title.trim()}>
+          {saving ? '저장 중...' : editId ? '수정 완료' : '작성 완료'}
+        </SaveBtn>
+      </BottomBar>
+    </Page>
+  );
 }
 
 export default function WritePage() {
-    return (
-        <Suspense>
-            <WritePageInner />
-        </Suspense>
-    );
+  return (
+    <Suspense>
+      <WritePageInner />
+    </Suspense>
+  );
 }
