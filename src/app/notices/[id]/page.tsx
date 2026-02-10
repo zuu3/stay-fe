@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import { theme } from '@/styles/theme';
 import { getPost, deletePost, isAdmin, type Post } from '@/lib/posts';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const Editor = dynamic(() => import('@/components/Editor'), { ssr: false });
 
@@ -132,7 +133,7 @@ export default function NoticeDetailPage() {
     fetchPost();
   }, [params.id]);
 
-  if (loading) return null;
+  if (loading) return <LoadingSpinner />;
 
   if (!post) {
     return (

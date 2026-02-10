@@ -9,6 +9,7 @@ import dynamic from 'next/dynamic';
 import type { Block } from '@blocknote/core';
 import { theme } from '@/styles/theme';
 import { getPost, createPost, updatePost, isAdmin, type Post } from '@/lib/posts';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const Editor = dynamic(() => import('@/components/Editor'), { ssr: false });
 
@@ -160,7 +161,7 @@ function WritePageInner() {
     init();
   }, [editId]);
 
-  if (status === 'loading') return null;
+  if (status === 'loading') return <LoadingSpinner />;
   if (!session?.user?.isAdmin) {
     return (
       <Denied>
