@@ -74,6 +74,7 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         <meta name="google-site-verification" content="I9kILbt0mCrmVYMAI9GgSzYAPnfBJrPBalDsqpPuMEU" />
+        <meta name="naver-site-verification" content="6162691bc4b776a2c645c60d2c27608e9054c283" />
       </head>
       <body>
         <Providers>
