@@ -72,6 +72,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <head>
+        <meta name="google-site-verification" content="I9kILbt0mCrmVYMAI9GgSzYAPnfBJrPBalDsqpPuMEU" />
+      </head>
       <body>
         <Providers>
           <GlobalStyle />
