@@ -190,7 +190,9 @@ export default function Home() {
         <LogoWrap>
           <Image src="/assets/logo.png" alt="STAY" width={80} height={80} priority />
         </LogoWrap>
-        <Counter>{count ? `${count.toLocaleString()}명이 사전예약에 참여했습니다` : '로딩중...'}</Counter>
+        {count >= 100 && (
+          <Counter>{count.toLocaleString()}명이 사전예약에 참여했습니다</Counter>
+        )}
         <Title>2026, 새롭게<br />돌아옵니다!</Title>
         <CTAButton onClick={handleCTA}>
           {session ? (isRegistered ? '신청 완료' : '사전예약 하기') : '사전예약'}

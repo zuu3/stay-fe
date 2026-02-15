@@ -53,7 +53,7 @@ const Nav = styled.nav`
   }
 `;
 
-const NavLink = styled(Link) <{ $active: boolean }>`
+const NavLink = styled(({ $active, ...props }: any) => <Link {...props} />) <{ $active: boolean }>`
   font-size: 15px;
   font-weight: 500;
   color: ${({ $active }) => $active ? theme.colors.text : theme.colors.textSub};
@@ -170,7 +170,7 @@ const MobileMenu = styled.div<{ $open: boolean }>`
   pointer-events: ${({ $open }) => $open ? 'auto' : 'none'};
 `;
 
-const MobileNavLink = styled(Link) <{ $active: boolean }>`
+const MobileNavLink = styled(({ $active, ...props }: any) => <Link {...props} />) <{ $active: boolean }>`
   font-size: 24px;
   font-weight: 700;
   color: ${({ $active }) => $active ? theme.colors.accent : theme.colors.text};
@@ -215,7 +215,7 @@ export default function Header() {
 
         <Nav>
           {links.map(l => (
-            <NavLink key={l.href} href={l.href} $active={pathname.startsWith(l.href)}>
+            <NavLink key={l.href} href={l.href} $active={(pathname || '').startsWith(l.href)}>
               {l.label}
             </NavLink>
           ))}
@@ -245,7 +245,7 @@ export default function Header() {
 
       <MobileMenu $open={open}>
         {links.map(l => (
-          <MobileNavLink key={l.href} href={l.href} $active={pathname.startsWith(l.href)}>
+          <MobileNavLink key={l.href} href={l.href} $active={(pathname || '').startsWith(l.href)}>
             {l.label}
           </MobileNavLink>
         ))}
