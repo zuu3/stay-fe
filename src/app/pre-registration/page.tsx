@@ -246,9 +246,11 @@ export default function PreRegistrationPage() {
             디스코드로 안내 드리겠습니다.
           </SuccessDesc>
 
-          <CountBadge>
-            현재 <span>{count.toLocaleString()}</span>명이 사전예약했어요
-          </CountBadge>
+          {count >= 100 && (
+            <CountBadge>
+              현재 <span>{count.toLocaleString()}</span>명이 사전예약했어요
+            </CountBadge>
+          )}
 
           <UserInfo>
             {session.user?.image && <Avatar src={session.user.image} alt="" />}
@@ -269,9 +271,11 @@ export default function PreRegistrationPage() {
         <Title>사전예약</Title>
         <Sub>버튼을 눌러 사전예약을 완료하세요</Sub>
 
-        <CountBadge>
-          현재 <span>{count.toLocaleString()}</span>명이 사전예약했어요
-        </CountBadge>
+        {count >= 100 && (
+          <CountBadge>
+            현재 <span>{count.toLocaleString()}</span>명이 사전예약했어요
+          </CountBadge>
+        )}
 
         <LoginCard>
           <UserInfo style={{ marginBottom: 20, justifyContent: 'center', border: 'none', background: 'transparent', padding: 0 }}>
@@ -302,9 +306,11 @@ export default function PreRegistrationPage() {
       <Title>사전예약</Title>
       <Sub>디스코드 계정으로 간편하게 사전예약하세요</Sub>
 
-      <CountBadge>
-        현재 <span>{count.toLocaleString()}</span>명이 사전예약했어요
-      </CountBadge>
+      {count >= 100 && (
+        <CountBadge>
+          현재 <span>{count.toLocaleString()}</span>명이 사전예약했어요
+        </CountBadge>
+      )}
 
       <LoginCard>
         <DiscordIcon>
