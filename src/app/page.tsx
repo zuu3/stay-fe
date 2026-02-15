@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { theme } from '@/styles/theme';
+import { useEffect, useState } from 'react';
 
 /* ── animations ── */
 const fadeUp = keyframes`
@@ -151,9 +152,30 @@ const ScrollHint = styled.div`
 export default function Home() {
   const { data: session } = useSession();
   const router = useRouter();
+  const [count, setCount] = useState(0);
+  const [isRegistered, setIsRegistered] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, [session]);
+
+  const fetchData = async () => {
+    try {
+      const res = await fetch('/api/pre-registration');
+      const data = await res.json();
+      setCount(data.count || 0);
+      setIsRegistered(!!data.isRegistered);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleCTA = () => {
     if (session) {
+      if (isRegistered) {
+        alert('이미 사전예약이 완료되었습니다!');
+        return;
+      }
       router.push('/pre-registration');
     } else {
       signIn('discord', { callbackUrl: '/pre-registration' });
@@ -168,10 +190,10 @@ export default function Home() {
         <LogoWrap>
           <Image src="/assets/logo.png" alt="STAY" width={80} height={80} priority />
         </LogoWrap>
-        <Counter>1,200명이 사전예약에 참여했습니다</Counter>
+        <Counter>{count ? `${count.toLocaleString()}명이 사전예약에 참여했습니다` : '로딩중...'}</Counter>
         <Title>2026, 새롭게<br />돌아옵니다!</Title>
         <CTAButton onClick={handleCTA}>
-          {session ? '사전예약 하기' : '사전예약'}
+          {session ? (isRegistered ? '신청 완료' : '사전예약 하기') : '사전예약'}
         </CTAButton>
       </Content>
       <ScrollHint>SCROLL</ScrollHint>

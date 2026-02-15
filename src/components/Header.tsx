@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useSession, signIn } from 'next-auth/react';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import { theme } from '@/styles/theme';
 
 const Wrap = styled.header`
@@ -229,6 +229,7 @@ export default function Header() {
             <UserChip>
               {session.user.image && <Avatar src={session.user.image} alt="" />}
               <span>{session.user.name}</span>
+              <LoginBtn onClick={() => signOut()} style={{ marginLeft: 8 }}>로그아웃</LoginBtn>
             </UserChip>
           ) : (
             <LoginBtn onClick={() => signIn('discord')}>로그인</LoginBtn>
@@ -251,7 +252,11 @@ export default function Header() {
         <MobileExternalLink href="https://discord.gg/BsFcbVA84Z" target="_blank" rel="noopener noreferrer">
           디스코드
         </MobileExternalLink>
-        {!session && (
+        {session ? (
+          <MobileExternalLink as="button" onClick={() => signOut()} style={{ textAlign: 'left', background: 'none', border: 'none', padding: 0 }}>
+            로그아웃
+          </MobileExternalLink>
+        ) : (
           <MobileExternalLink as="button" onClick={() => signIn('discord')} style={{ textAlign: 'left', background: 'none', border: 'none', padding: 0 }}>
             로그인
           </MobileExternalLink>
