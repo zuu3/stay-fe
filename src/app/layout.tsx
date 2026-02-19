@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import LayoutBody from "@/components/LayoutBody";
 import GlobalStyle from "@/styles/GlobalStyle";
 
 export const metadata: Metadata = {
@@ -26,13 +26,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ko_KR",
-    url: "https://stay-server.kr", // 실제 배포될 URL로 수정 필요
+    url: "https://stay-server.kr",
     title: "STAY — FiveM 서버",
     description: "2026, 새롭게 돌아오는 STAY FiveM 서버 공식 웹사이트입니다.",
     siteName: "STAY",
     images: [
       {
-        url: "/assets/og-image.png", // OG 이미지 경로 (준비 필요)
+        url: "/assets/og-image.png",
         width: 1200,
         height: 630,
         alt: "STAY FiveM Server Preview",
@@ -80,8 +80,7 @@ export default function RootLayout({
         <Providers>
           <GlobalStyle />
           <Header />
-          <main>{children}</main>
-          <Footer />
+          <LayoutBody>{children}</LayoutBody>
         </Providers>
       </body>
     </html>

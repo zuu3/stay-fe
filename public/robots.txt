@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://stayrp.kro.kr
+
+# Sitemaps
+Sitemap: https://stayrp.kro.kr/sitemap.xml
