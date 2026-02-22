@@ -1,6 +1,7 @@
 "use client";
 
 import styled from '@emotion/styled';
+import { motion } from 'framer-motion';
 import { keyframes } from '@emotion/react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -34,26 +35,16 @@ const fadeIn = keyframes`
   to   { opacity: 1; transform: translateY(0); }
 `;
 
-/* ── Fullpage wrapper ── */
-const FullpageContainer = styled.div<{ $current: number }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  transform: translateY(${({ $current }) => $current * -100}vh);
-  transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
-  will-change: transform;
-`;
-
+/* ── Section wrapper ── */
 const Section = styled.section`
   position: relative;
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 80px 0;
   overflow: hidden;
 `;
 
@@ -85,12 +76,10 @@ const Noise = styled.div`
   pointer-events: none;
 `;
 
-const HeroContent = styled.div`
+const HeroContent = styled(motion.div)`
   position: relative;
   z-index: 2;
   text-align: center;
-  animation: ${fadeUp} 1s ease both;
-  animation-delay: 0.2s;
 `;
 
 const LogoWrap = styled.div`
@@ -182,15 +171,12 @@ const SectionBG = styled.div`
   background: ${theme.colors.bg};
 `;
 
-const SectionInner = styled.div<{ $visible?: boolean }>`
+const SectionInner = styled(motion.div)`
   position: relative;
   z-index: 2;
   width: 100%;
   max-width: 1100px;
   padding: 0 48px;
-  opacity: ${({ $visible }) => $visible ? 1 : 0};
-  transform: translateY(${({ $visible }) => $visible ? '0' : '30px'});
-  transition: opacity 0.8s ease, transform 0.8s ease;
 
   @media (max-width: 768px) {
     padding: 0 20px;
@@ -488,37 +474,7 @@ const FooterLink = styled.a`
   &:hover { color: ${theme.colors.textSub}; }
 `;
 
-/* ━━━ Fullpage Dot Navigation ━━━ */
-const DotNav = styled.div`
-  position: fixed;
-  right: 28px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 
-  @media (max-width: 768px) {
-    right: 14px;
-    gap: 10px;
-  }
-`;
-
-const Dot = styled.button<{ $active: boolean }>`
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 1.5px solid ${({ $active }) => $active ? theme.colors.accent : 'rgba(255,255,255,0.25)'};
-  background: ${({ $active }) => $active ? theme.colors.accent : 'transparent'};
-  cursor: pointer;
-  transition: all 0.3s;
-  padding: 0;
-
-  &:hover {
-    border-color: ${theme.colors.accent};
-  }
-`;
 
 /* ── tag icons ── */
 const tagIcon: Record<string, string> = {
@@ -604,10 +560,7 @@ export default function Home() {
   const [isRegistered, setIsRegistered] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
   const [newsTab, setNewsTab] = useState<string | null>(null);
-  const [currentSection, setCurrentSection] = useState(0);
-  const [sectionVisible, setSectionVisible] = useState<boolean[]>([true, false, false, false]);
-  const isScrolling = useRef(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+
 
   // Fetch data
   useEffect(() => {
@@ -638,95 +591,7 @@ export default function Home() {
     }
   };
 
-  // Scroll to section
-  const scrollToSection = useCallback((index: number) => {
-    if (isScrolling.current || index < 0 || index >= SECTION_COUNT) return;
-    isScrolling.current = true;
-    setCurrentSection(index);
 
-    setSectionVisible(prev => {
-      const next = [...prev];
-      next[index] = true;
-      return next;
-    });
-
-    setTimeout(() => {
-      isScrolling.current = false;
-    }, 1000);
-  }, []);
-
-  // Wheel handler for fullpage scroll
-  useEffect(() => {
-    let accumulatedDelta = 0;
-    let deltaTimeout: NodeJS.Timeout | null = null;
-
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      if (isScrolling.current) return;
-
-      accumulatedDelta += e.deltaY;
-
-      if (deltaTimeout) clearTimeout(deltaTimeout);
-      deltaTimeout = setTimeout(() => {
-        accumulatedDelta = 0;
-      }, 200);
-
-      if (Math.abs(accumulatedDelta) > 50) {
-        if (accumulatedDelta > 0) {
-          scrollToSection(currentSection + 1);
-        } else {
-          scrollToSection(currentSection - 1);
-        }
-        accumulatedDelta = 0;
-      }
-    };
-
-    // Touch handling
-    let touchStartY = 0;
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY;
-    };
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (isScrolling.current) return;
-      const delta = touchStartY - e.changedTouches[0].clientY;
-      if (Math.abs(delta) < 50) return;
-      if (delta > 0) {
-        scrollToSection(currentSection + 1);
-      } else {
-        scrollToSection(currentSection - 1);
-      }
-    };
-
-    // Key handling
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-        e.preventDefault();
-        scrollToSection(currentSection + 1);
-      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-        e.preventDefault();
-        scrollToSection(currentSection - 1);
-      }
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchend', handleTouchEnd, { passive: true });
-    window.addEventListener('keydown', handleKeyDown);
-
-    // Lock body scroll
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchend', handleTouchEnd);
-      window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'unset';
-      document.documentElement.style.overflow = 'unset';
-      if (deltaTimeout) clearTimeout(deltaTimeout);
-    };
-  }, [currentSection, scrollToSection]);
 
   const handleCTA = () => {
     if (session) {
@@ -747,134 +612,145 @@ export default function Home() {
   const displayPosts = filteredPosts.slice(0, 3);
 
   return (
-    <>
-      {/* Dot Navigation */}
-      <DotNav>
-        {Array.from({ length: SECTION_COUNT }).map((_, i) => (
-          <Dot key={i} $active={currentSection === i} onClick={() => scrollToSection(i)} />
-        ))}
-      </DotNav>
+    <main>
+      {/* ── SECTION 0: HERO ── */}
+      <Section id="section-0">
+        <BG />
+        <Noise />
+        <HeroContent
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <LogoWrap>
+            <Image src="/assets/logo.png" alt="STAY" width={80} height={80} priority />
+          </LogoWrap>
+          {count >= 100 && (
+            <Counter>{count.toLocaleString()}명이 사전예약에 참여했습니다</Counter>
+          )}
+          <Title>2026, 새롭게<br />돌아옵니다!</Title>
+          <CTAButton onClick={handleCTA}>
+            {session ? (isRegistered ? '신청 완료' : '사전예약 하기') : '사전예약'}
+          </CTAButton>
+        </HeroContent>
+        <ScrollHint>SCROLL</ScrollHint>
+      </Section>
 
-      <FullpageContainer $current={currentSection}>
-        {/* ── SECTION 0: HERO ── */}
-        <Section id="section-0">
-          <BG />
-          <Noise />
-          <HeroContent>
-            <LogoWrap>
-              <Image src="/assets/logo.png" alt="STAY" width={80} height={80} priority />
-            </LogoWrap>
-            {count >= 100 && (
-              <Counter>{count.toLocaleString()}명이 사전예약에 참여했습니다</Counter>
+      {/* ── SECTION 1: 새로운 소식 ── */}
+      <Section id="section-1">
+        <SectionBG />
+        <Noise />
+        <SectionInner
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <SectionLabel>NEWS</SectionLabel>
+          <SectionTitle>새로운 소식</SectionTitle>
+          <SectionDesc>서버의 최신 공지사항, 업데이트, 이벤트를 확인하세요.</SectionDesc>
+
+          <TabRow>
+            {newsTabs.map(t => (
+              <TabBtn
+                key={t.label}
+                $active={newsTab === t.tag}
+                onClick={() => setNewsTab(t.tag)}
+              >
+                {t.label}
+              </TabBtn>
+            ))}
+          </TabRow>
+
+          <CardGrid>
+            {displayPosts.length > 0 ? displayPosts.map(p => (
+              <PostCard key={p.id} href={`/notices/${p.id}`}>
+                <PostCardThumb>{tagIcon[p.tag] ?? '📄'}</PostCardThumb>
+                <PostCardBody>
+                  <PostCardMeta>
+                    <PostTag>{p.tag}</PostTag>
+                    <PostDate>{p.date}</PostDate>
+                  </PostCardMeta>
+                  <PostCardTitle>{p.title}</PostCardTitle>
+                  <PostCardDesc>{p.summary}</PostCardDesc>
+                </PostCardBody>
+              </PostCard>
+            )) : (
+              <p style={{ color: theme.colors.textMuted, fontSize: 14, gridColumn: '1 / -1' }}>
+                등록된 게시물이 없습니다.
+              </p>
             )}
-            <Title>2026, 새롭게<br />돌아옵니다!</Title>
-            <CTAButton onClick={handleCTA}>
-              {session ? (isRegistered ? '신청 완료' : '사전예약 하기') : '사전예약'}
-            </CTAButton>
-          </HeroContent>
-          <ScrollHint>SCROLL</ScrollHint>
-        </Section>
+          </CardGrid>
 
-        {/* ── SECTION 1: 새로운 소식 ── */}
-        <Section id="section-1">
-          <SectionBG />
-          <Noise />
-          <SectionInner $visible={sectionVisible[1]}>
-            <SectionLabel>NEWS</SectionLabel>
-            <SectionTitle>새로운 소식</SectionTitle>
-            <SectionDesc>서버의 최신 공지사항, 업데이트, 이벤트를 확인하세요.</SectionDesc>
+          <MoreLink href="/notices">모든 소식 보기</MoreLink>
+        </SectionInner>
+      </Section>
 
-            <TabRow>
-              {newsTabs.map(t => (
-                <TabBtn
-                  key={t.label}
-                  $active={newsTab === t.tag}
-                  onClick={() => setNewsTab(t.tag)}
-                >
-                  {t.label}
-                </TabBtn>
-              ))}
-            </TabRow>
+      {/* ── SECTION 2: 게임 가이드 ── */}
+      <Section id="section-2">
+        <SectionBG />
+        <Noise />
+        <SectionInner
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <SectionLabel>GUIDE</SectionLabel>
+          <SectionTitle>게임 가이드</SectionTitle>
+          <SectionDesc>서버 규칙부터 입문 가이드까지, 필요한 정보를 한눈에.</SectionDesc>
 
-            <CardGrid>
-              {displayPosts.length > 0 ? displayPosts.map(p => (
-                <PostCard key={p.id} href={`/notices/${p.id}`}>
-                  <PostCardThumb>{tagIcon[p.tag] ?? '📄'}</PostCardThumb>
-                  <PostCardBody>
-                    <PostCardMeta>
-                      <PostTag>{p.tag}</PostTag>
-                      <PostDate>{p.date}</PostDate>
-                    </PostCardMeta>
-                    <PostCardTitle>{p.title}</PostCardTitle>
-                    <PostCardDesc>{p.summary}</PostCardDesc>
-                  </PostCardBody>
-                </PostCard>
-              )) : (
-                <p style={{ color: theme.colors.textMuted, fontSize: 14, gridColumn: '1 / -1' }}>
-                  등록된 게시물이 없습니다.
-                </p>
-              )}
-            </CardGrid>
+          <GuideGrid>
+            {guides.map(g => (
+              <GuideCard key={g.title} href={g.href}>
+                <GuideIcon>{g.icon}</GuideIcon>
+                <GuideTitle>{g.title}</GuideTitle>
+                <GuideDesc>{g.desc}</GuideDesc>
+              </GuideCard>
+            ))}
+          </GuideGrid>
+        </SectionInner>
+      </Section>
 
-            <MoreLink href="/notices">모든 소식 보기</MoreLink>
-          </SectionInner>
-        </Section>
+      {/* ── SECTION 3: 커뮤니티 ── */}
+      <Section id="section-3">
+        <SectionBG />
+        <Noise />
+        <SectionInner
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <SectionLabel>COMMUNITY</SectionLabel>
+          <SectionTitle>커뮤니티</SectionTitle>
+          <SectionDesc>다양한 채널에서 STAY를 만나보세요.</SectionDesc>
 
-        {/* ── SECTION 2: 게임 가이드 ── */}
-        <Section id="section-2">
-          <SectionBG />
-          <Noise />
-          <SectionInner $visible={sectionVisible[2]}>
-            <SectionLabel>GUIDE</SectionLabel>
-            <SectionTitle>게임 가이드</SectionTitle>
-            <SectionDesc>서버 규칙부터 입문 가이드까지, 필요한 정보를 한눈에.</SectionDesc>
+          <CommunityGrid>
+            {communityLinks.map(c => (
+              <CommunityCard
+                key={c.name}
+                href={c.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <CommunityIcon>{c.icon}</CommunityIcon>
+                <CommunityName>{c.name}</CommunityName>
+                <CommunityDesc>{c.desc}</CommunityDesc>
+              </CommunityCard>
+            ))}
+          </CommunityGrid>
+        </SectionInner>
 
-            <GuideGrid>
-              {guides.map(g => (
-                <GuideCard key={g.title} href={g.href}>
-                  <GuideIcon>{g.icon}</GuideIcon>
-                  <GuideTitle>{g.title}</GuideTitle>
-                  <GuideDesc>{g.desc}</GuideDesc>
-                </GuideCard>
-              ))}
-            </GuideGrid>
-          </SectionInner>
-        </Section>
-
-        {/* ── SECTION 3: 커뮤니티 ── */}
-        <Section id="section-3">
-          <SectionBG />
-          <Noise />
-          <SectionInner $visible={sectionVisible[3]}>
-            <SectionLabel>COMMUNITY</SectionLabel>
-            <SectionTitle>커뮤니티</SectionTitle>
-            <SectionDesc>다양한 채널에서 STAY를 만나보세요.</SectionDesc>
-
-            <CommunityGrid>
-              {communityLinks.map(c => (
-                <CommunityCard
-                  key={c.name}
-                  href={c.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <CommunityIcon>{c.icon}</CommunityIcon>
-                  <CommunityName>{c.name}</CommunityName>
-                  <CommunityDesc>{c.desc}</CommunityDesc>
-                </CommunityCard>
-              ))}
-            </CommunityGrid>
-          </SectionInner>
-
-          <FooterBar>
-            <FooterCopy>© 2026 Stay. All rights reserved.</FooterCopy>
-            <FooterLinks>
-              <FooterLink href="#">이용약관</FooterLink>
-              <FooterLink href="#">개인정보 처리방침</FooterLink>
-            </FooterLinks>
-          </FooterBar>
-        </Section>
-      </FullpageContainer>
-    </>
+        <FooterBar>
+          <FooterCopy>© 2026 Stay. All rights reserved.</FooterCopy>
+          <FooterLinks>
+            <FooterLink href="#">이용약관</FooterLink>
+            <FooterLink href="#">개인정보 처리방침</FooterLink>
+          </FooterLinks>
+        </FooterBar>
+      </Section>
+    </main>
   );
 }
