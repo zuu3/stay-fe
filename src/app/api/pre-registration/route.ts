@@ -3,6 +3,37 @@ import { auth } from '@/auth';
 import pool from '@/lib/db';
 import { RowDataPacket } from 'mysql2';
 
+async function grantDiscordRole(discordUserId: string) {
+    const botToken = process.env.DISCORD_BOT_TOKEN;
+    const guildId = process.env.DISCORD_GUILD_ID;
+    const roleId = process.env.DISCORD_PRE_REG_ROLE_ID;
+
+    if (!botToken || !guildId || !roleId) {
+        return { ok: false, reason: 'missing_env' as const };
+    }
+
+    const endpoint = `https://discord.com/api/v10/guilds/${guildId}/members/${discordUserId}/roles/${roleId}`;
+    const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+            Authorization: `Bot ${botToken}`,
+            'Content-Length': '0',
+        },
+    });
+
+    if (response.ok) {
+        return { ok: true as const };
+    }
+
+    const body = await response.text();
+    return {
+        ok: false as const,
+        reason: 'discord_api_error' as const,
+        status: response.status,
+        body,
+    };
+}
+
 export async function GET() {
     try {
         const session = await auth();
@@ -48,11 +79,23 @@ export async function POST() {
         // Register user
         await pool.query('INSERT INTO realworld.minchan_save (discord_id) VALUES (?)', [discordId]);
 
+        const roleResult = await grantDiscordRole(discordId);
+        if (!roleResult.ok) {
+            console.warn('[API] Failed to grant Discord pre-registration role:', {
+                discordId,
+                ...roleResult,
+            });
+        }
+
         // Get updated count
         const [countResult] = await pool.query<RowDataPacket[]>('SELECT COUNT(*) as count FROM realworld.minchan_save');
         const totalCount = countResult[0].count;
 
-        return NextResponse.json({ success: true, count: totalCount });
+        return NextResponse.json({
+            success: true,
+            count: totalCount,
+            roleAssigned: roleResult.ok,
+        });
     } catch (error) {
         console.error('Failed to pre-register:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
