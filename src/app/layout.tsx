@@ -7,10 +7,10 @@ import GlobalStyle from "@/styles/GlobalStyle";
 
 export const metadata: Metadata = {
   title: {
-    default: "STAY — FiveM 서버",
+    default: "STAY RP",
     template: "%s | STAY"
   },
-  description: "STAY FiveM 서버 공식 웹사이트 - 2026, 새롭게 돌아오는 최고의 롤플레이 환경을 경험하세요.",
+  description: "STAY 서버 공식 홈페이지",
   keywords: ["FiveM", "파이브엠", "STAY서버", "STAY", "GTA5 서버", "롤플레이", "사전예약", "게임"],
   authors: [{ name: "STAY Team" }],
   creator: "STAY Team",
@@ -27,22 +27,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ko_KR",
     url: "https://stayrp.kro.kr",
-    title: "STAY — FiveM 서버",
-    description: "2026, 새롭게 돌아오는 STAY FiveM 서버 공식 웹사이트입니다.",
-    siteName: "STAY",
+    title: "STAY RP",
+    description: "STAY 서버 공식 홈페이지",
+    siteName: "STAY RP",
     images: [
       {
         url: "/assets/og-image.png",
         width: 1200,
         height: 630,
-        alt: "STAY FiveM Server Preview",
+        alt: "STAY RP Server Preview",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "STAY — FiveM 서버",
-    description: "2026, 새롭게 돌아오는 STAY FiveM 서버 공식 웹사이트",
+    title: "STAY RP",
+    description: "STAY 서버 공식 홈페이지",
     images: ["/assets/og-image.png"],
   },
   robots: {
