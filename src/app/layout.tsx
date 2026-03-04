@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ko_KR",
-    url: "https://stay-server.kr",
+    url: "https://stayrp.kro.kr",
     title: "STAY — FiveM 서버",
     description: "2026, 새롭게 돌아오는 STAY FiveM 서버 공식 웹사이트입니다.",
     siteName: "STAY",
