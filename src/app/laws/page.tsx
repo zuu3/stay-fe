@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
@@ -143,8 +144,20 @@ const SectionBody = styled.p`
 `;
 
 export default function LawsPage() {
+    const router = useRouter();
     const [active, setActive] = useState('server');
     const current = lawData.find(d => d.id === active)!;
+
+    useEffect(() => {
+        alert('준비중입니다.');
+
+        if (window.history.length > 1) {
+            router.back();
+            return;
+        }
+
+        router.replace('/');
+    }, [router]);
 
     return (
         <Page>
