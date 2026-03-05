@@ -6,6 +6,7 @@ import LayoutBody from "@/components/LayoutBody";
 import GlobalStyle from "@/styles/GlobalStyle";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://stayrp.kro.kr"),
   title: {
     default: "STAY RP",
     template: "%s | STAY"
@@ -32,10 +33,11 @@ export const metadata: Metadata = {
     siteName: "STAY RP",
     images: [
       {
-        url: "/assets/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "STAY RP Server Preview",
+        url: "/assets/banner.gif",
+        width: 700,
+        height: 394,
+        alt: "STAY RP Server Banner",
+        type: "image/gif",
       },
     ],
   },
@@ -43,7 +45,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "STAY RP",
     description: "STAY 서버 공식 홈페이지",
-    images: ["/assets/og-image.png"],
+    images: ["/assets/banner.gif"],
   },
   robots: {
     index: true,
