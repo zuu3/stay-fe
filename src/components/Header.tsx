@@ -219,7 +219,7 @@ export default function Header() {
               {l.label}
             </NavLink>
           ))}
-          <ExternalNavLink href="https://discord.gg/BsFcbVA84Z" target="_blank" rel="noopener noreferrer">
+          <ExternalNavLink href="https://discord.gg/stayrp" target="_blank" rel="noopener noreferrer">
             디스코드
           </ExternalNavLink>
         </Nav>
@@ -249,7 +249,7 @@ export default function Header() {
             {l.label}
           </MobileNavLink>
         ))}
-        <MobileExternalLink href="https://discord.gg/BsFcbVA84Z" target="_blank" rel="noopener noreferrer">
+        <MobileExternalLink href="https://discord.gg/stayrp" target="_blank" rel="noopener noreferrer">
           디스코드
         </MobileExternalLink>
         {session ? (
